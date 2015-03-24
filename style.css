@@ -1,0 +1,21 @@
+.warning {
+	display: block;
+	padding: 10px;
+	background-color: #ffe000;
+	color: #222;
+}
+
+.error {
+	background-color: #ffe000 !important;
+	color: #222 !important;
+}
+
+.success {
+	background-color: #33CC33;
+	color: #222;
+	display: block;
+	padding: 10px;
+	text-align: center;
+	font-size: 110%;
+	
+}
