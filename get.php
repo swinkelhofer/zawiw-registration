@@ -52,7 +52,7 @@ function zawiw_registration_shortcode($param)
 					else
 					{
 						//is spammer, still gets positive feedback
-						echo "<div class='warning'>Ihr Antrag wurde erfolgreich vermittelt</div>";
+						echo "<div class='success'>Ihr Antrag wurde erfolgreich vermittelt</div>";
 						return;
 					}
                 }
