@@ -26,17 +26,35 @@ function zawiw_registration_shortcode($param)
                 }
                 if($error == 0)
                 {
-                        $msg = "Der Benutzer " . $_POST['fullname'] . " möchte einen Benutzeraccount für " . $_SERVER['HTTP_HOST'] . " mit folgenden Daten haben:\r\n";
-                        $msg .= "Username:\t" . $_POST['username'] . "\r\n";
-                        $msg .= "Name:\t\t" . $_POST['fullname'] . "\r\n";
-                        $msg .= "EMail:\t\t" . $_POST['email'] . "\r\n\r\n";
-                        $msg .= "Diese EMail wurde automatisch generiert.\r\n";
-                        $head = "From: " . $_POST['email'] . "\r\n\r\n";
-                        if(mail($_POST['mailto'], "Neue Benutzerregistrierung angefragt", $msg, $head) === TRUE)
-                                echo "<div class='success'>Ihr Antrag wurde erfolgreich vermittelt</div>";
-                        else
-                                echo "<div class='warning'>Bitte nochmal versuchen, Ihr Antrag konnte nicht vermittelt werden</div>";
-                            return;
+                	$error = 0;
+					/* Test EMail via stopforumspam API */
+					$curlHandle = curl_init();
+					curl_setopt($curlHandle, CURLOPT_URL, "http://api.stopforumspam.org/api?email=" . $_POST['email']);
+					curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, 1);
+					curl_setopt($curlHandle, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.0.6) Gecko/2009011913 Firefox/3.0.6');
+					$spamtest = curl_exec($curlHandle);
+					curl_close($curlHandle);
+					/* EMail check resource loaded */
+					if(preg_match('/<appears>yes<\/appears>/', $spamtest) === 0)
+					{
+	                    $msg = "Der Benutzer " . $_POST['fullname'] . " möchte einen Benutzeraccount für " . $_SERVER['HTTP_HOST'] . " mit folgenden Daten haben:\r\n";
+	                    $msg .= "Username:\t" . $_POST['username'] . "\r\n";
+	                    $msg .= "Name:\t\t" . $_POST['fullname'] . "\r\n";
+	                    $msg .= "EMail:\t\t" . $_POST['email'] . "\r\n\r\n";
+	                    $msg .= "Diese EMail wurde automatisch generiert.\r\n";
+	                    $head = "From: " . $_POST['email'] . "\r\n\r\n";
+	                    if(mail($_POST['mailto'], "Neue Benutzerregistrierung angefragt", $msg, $head) === TRUE)
+	                        echo "<div class='success'>Ihr Antrag wurde erfolgreich vermittelt</div>";
+	                    else
+	                        echo "<div class='warning'>Bitte nochmal versuchen, Ihr Antrag konnte nicht vermittelt werden</div>";
+	                    return;
+					}
+					else
+					{
+						//is spammer, still gets positive feedback
+						echo "<div class='warning'>Ihr Antrag wurde erfolgreich vermittelt</div>";
+						return;
+					}
                 }
         }
         if(!isset($param['mailto']) || !filter_var($param['mailto'], FILTER_VALIDATE_EMAIL))
@@ -56,7 +74,7 @@ function zawiw_registration_shortcode($param)
 	                                                        <label for="username">Benutzername (*)</label>
 	                                                </th>
 	                                                <td>
-	                                                       <input <?php echo ((($error & 1) > 0) ? "class='error'" : "") ?> type="text" placeholder="mmustermann" name="username" id="username" />
+	                                                       <input <?php echo (isset($error) && (($error & 1) > 0) ? "class='error'" : "") ?> type="text" placeholder="mmustermann" name="username" id="username" />
 	                                                </td>   
 	                                        </tr>
 	                                        <tr>
@@ -64,7 +82,7 @@ function zawiw_registration_shortcode($param)
 	                                                        <label for="email">E-Mail-Adresse (*)</label>
 	                                                </th>
 	                                                <td>
-	                                                        <input <?php echo ((($error & 2) > 0) ? "class='error'" : "") ?>  type="text" placeholder="mustermann@example.com" name="email" id="email" />
+	                                                        <input <?php echo (isset($error) && (($error & 2) > 0) ? "class='error'" : "") ?>  type="text" placeholder="mustermann@example.com" name="email" id="email" />
 	                                                </td>
 	                                        </tr>
 	                                        <tr>
@@ -72,7 +90,7 @@ function zawiw_registration_shortcode($param)
 	                                                        <label for="fullname">Name (*)</label>
 	                                                </th>
 	                                                <td>
-	                                                        <input <?php echo ((($error & 4) > 0) ? "class='error'" : "") ?>  type="text" placeholder="Max Mustermann" name="fullname" id="fullname" />
+	                                                        <input <?php echo (isset($error) && (($error & 4) > 0) ? "class='error'" : "") ?>  type="text" placeholder="Max Mustermann" name="fullname" id="fullname" />
 	                                                </td>
 	                                        </tr>
 	                                </tbody>
@@ -94,6 +112,7 @@ function zawiw_registration_queue_script()
         if(!has_shortcode($post->post_content, 'zawiw_registration'))   //Loads stylesheets only if shortcode exists
                 return;
         wp_enqueue_script( 'jquery' );
+        wp_enqueue_script( 'zawiw_registration_script', plugins_url( 'helper.js', __FILE__ ) );
 }
 
 function zawiw_registration_queue_stylesheet() {
