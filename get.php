@@ -71,7 +71,7 @@ function zawiw_registration_shortcode($param)
 	                                <tbody>
 	                                        <tr>
 	                                                <th scope="row">
-	                                                        <label for="username">Benutzername (*)</label>
+	                                                        <label for="username">Benutzername <sup>*</sup></label>
 	                                                </th>
 	                                                <td>
 	                                                       <input <?php echo (isset($error) && (($error & 1) > 0) ? "class='error'" : "") ?> type="text" placeholder="mmustermann" name="username" id="username" />
@@ -79,7 +79,7 @@ function zawiw_registration_shortcode($param)
 	                                        </tr>
 	                                        <tr>
 	                                                <th scope="row">
-	                                                        <label for="email">E-Mail-Adresse (*)</label>
+	                                                        <label for="email">E-Mail-Adresse <sup>*</sup></label>
 	                                                </th>
 	                                                <td>
 	                                                        <input <?php echo (isset($error) && (($error & 2) > 0) ? "class='error'" : "") ?>  type="text" placeholder="mustermann@example.com" name="email" id="email" />
@@ -87,7 +87,7 @@ function zawiw_registration_shortcode($param)
 	                                        </tr>
 	                                        <tr>
 	                                                <th scope="row">
-	                                                        <label for="fullname">Name (*)</label>
+	                                                        <label for="fullname">Name <sup>*</sup></label>
 	                                                </th>
 	                                                <td>
 	                                                        <input <?php echo (isset($error) && (($error & 4) > 0) ? "class='error'" : "") ?>  type="text" placeholder="Max Mustermann" name="fullname" id="fullname" />
@@ -95,6 +95,9 @@ function zawiw_registration_shortcode($param)
 	                                        </tr>
 	                                </tbody>
 	                        </table>
+	                </p>
+	                <p>
+	                	<label><sup>*</sup> Pflichtfelder</label>
 	                </p>
 	                <input type="hidden" name="mailto" value="<?php if(isset($param['mailto'])) echo $param['mailto'] ?>" />
 	                <p class="clear">
