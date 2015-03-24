@@ -112,7 +112,6 @@ function zawiw_registration_queue_script()
         if(!has_shortcode($post->post_content, 'zawiw_registration'))   //Loads stylesheets only if shortcode exists
                 return;
         wp_enqueue_script( 'jquery' );
-        wp_enqueue_script( 'zawiw_registration_script', plugins_url( 'helper.js', __FILE__ ) );
 }
 
 function zawiw_registration_queue_stylesheet() {
