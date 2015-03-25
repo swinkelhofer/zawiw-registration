@@ -11,7 +11,8 @@ Dependencies: curl
 
 Changelog
 =========
-
+v1.2
+	Counts Spammails and adds Submenu to Dashboard to render statistics
 v1.1
 	Spamfilter via stopforumspam API
 

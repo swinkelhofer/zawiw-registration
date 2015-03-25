@@ -1,0 +1,21 @@
+p.clear {
+	font-size: 110%;
+}
+
+.clear b {
+	font-size: 120%;
+	margin-left:5px;
+}
+.spamPlaceholder {
+	height: 300px;
+	padding: 10px;
+	margin-right: 20px;
+	overflow-y: scroll;
+}
+
+.spamAdress a {
+	display: block;
+	padding: 5px;
+	font-size: 110%;
+	text-decoration: none;
+}

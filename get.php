@@ -2,6 +2,7 @@
 add_shortcode('zawiw_registration', 'zawiw_registration_shortcode');
 add_action( 'wp_enqueue_scripts', 'zawiw_registration_queue_script' );
 add_action( 'wp_enqueue_scripts', 'zawiw_registration_queue_stylesheet' );
+register_activation_hook( dirname( __FILE__ ).'/zawiw-registration.php', 'zawiw_registration_activation');
 
 function zawiw_registration_shortcode($param)
 {
@@ -27,15 +28,24 @@ function zawiw_registration_shortcode($param)
                 if($error == 0)
                 {
                 	$error = 0;
+                	/* Load Trashmails */
+                	$trashmailHandle = curl_init();
+					curl_setopt($trashmailHandle, CURLOPT_URL, "http://www.email-wegwerf.de/trashmailliste.txt");
+					curl_setopt($trashmailHandle, CURLOPT_RETURNTRANSFER, 1);
+					curl_setopt($trashmailHandle, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.0.6) Gecko/2009011913 Firefox/3.0.6');
+					$trashmail = curl_exec($trashmailHandle);
+					curl_close($trashmailHandle);
+					$mailadress = substr($_POST['email'], strrpos($_POST['email'], "@")+1);
+					/* Trashmail resources loaded */
 					/* Test EMail via stopforumspam API */
-					$curlHandle = curl_init();
-					curl_setopt($curlHandle, CURLOPT_URL, "http://api.stopforumspam.org/api?email=" . $_POST['email']);
-					curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, 1);
-					curl_setopt($curlHandle, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.0.6) Gecko/2009011913 Firefox/3.0.6');
-					$spamtest = curl_exec($curlHandle);
-					curl_close($curlHandle);
+					$spammailHandle = curl_init();
+					curl_setopt($spammailHandle, CURLOPT_URL, "http://api.stopforumspam.org/api?email=" . $_POST['email']);
+					curl_setopt($spammailHandle, CURLOPT_RETURNTRANSFER, 1);
+					curl_setopt($spammailHandle, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.0.6) Gecko/2009011913 Firefox/3.0.6');
+					$spamtest = curl_exec($spammailHandle);
+					curl_close($spammailHandle);
 					/* EMail check resource loaded */
-					if(preg_match('/<appears>yes<\/appears>/', $spamtest) === 0)
+					if(preg_match('/<appears>yes<\/appears>/', $spamtest) === 0 && preg_match('/' . $mailadress . '/', $trashmail) === 0)
 					{
 	                    $msg = "Der Benutzer " . $_POST['fullname'] . " möchte einen Benutzeraccount für " . $_SERVER['HTTP_HOST'] . " mit folgenden Daten haben:\r\n";
 	                    $msg .= "Username:\t" . $_POST['username'] . "\r\n";
@@ -51,6 +61,8 @@ function zawiw_registration_shortcode($param)
 					}
 					else
 					{
+						global $wpdb;
+						$wpdb->insert('zawiw_registration_spam_counter', array('blogPrefix' => $wpdb->get_blog_prefix(), 'spamMail' => $_POST['email']));
 						//is spammer, still gets positive feedback
 						echo "<div class='success'>Ihr Antrag wurde erfolgreich vermittelt</div>";
 						return;
@@ -123,4 +135,5 @@ function zawiw_registration_queue_stylesheet() {
                 return;
         wp_enqueue_style( 'zawiw_registration_style', plugins_url( 'style.css', __FILE__ ) );
 }
+
 ?>
